@@ -85,6 +85,7 @@ int main ( void )
 	}
 	smb_closepipe(&smb);
 	machcount=0;
+	sharecount=0;
 	for(i=0;i<wgcount;i++)
 	{
 		printf("WORKGROUP: %s %s\n",group[i].name,group[i].master);
@@ -155,6 +156,6 @@ int main ( void )
 	printf("IP = %s\n",ip);		
 
 	exit(0);	
-	//return 0;
+	return 0;
 }
 

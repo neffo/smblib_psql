@@ -43,9 +43,9 @@ int smb_get_next_file(smb_shiz *smb, smb_dent *file)
 	if (strstr(line," ."))
 		goto getline;
 	if (strstr(line,"ERRDOS"))
-		return 1;
+		{smb_error(smb,SMB_NO_USER_ACCESS);return 1;}
 	if (strstr(line,"ERRSRV"))
-		return 1;
+		{smb_error(smb,SMB_SRV_NO_ACCESS);return 1;}
 	if (strlen(line)<3)
 		goto getline;
 
@@ -71,7 +71,7 @@ int smb_get_next_file_r(smb_shiz *smb, smb_dent *file, char *dir)
 	fgets(line,1023,smb->ppipe);
 
 	if (smb->debug)
-		fprintf(stderr,"smb_get_next_file_r() : LINE: %s\n",line);
+		fprintf(stderr,"smb_get_next_file_r() : LINE: |%s|\n",line);
 //	more <filename>
 //	123456789012345
 	if ( strncmp(line,"more <filename>",15)==0 )
@@ -105,7 +105,8 @@ int smb_get_next_file_r(smb_shiz *smb, smb_dent *file, char *dir)
 		
 	}
 
-	smb_line_to_smbdent(line,file);
+	if (smb_line_to_smbdent(line,file))
+		goto getline_r;
 
 	if ( !*file->filename )
 		goto getline_r;

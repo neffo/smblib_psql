@@ -117,9 +117,19 @@ int smb_line_to_smbdent(char *line, smb_dent *file)
 //	012345678901234567890123456789
 //	blah=strstr(line+29,"    "); // not right
 	blah=strstr(line+2,"   ");
+
+	//fprintf(stderr,"smb_line_to_smbdent(\"%s\", %x)\n",line,file);
+	
+	if (!*line)
+		return 1;
 	
 	if (!blah)
 		return 1;
+
+	if (line[2] == ' ')
+		return 1;
+
+//	file->mode = 0;
 
 	namelen=blah-line;
 

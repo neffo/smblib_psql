@@ -36,7 +36,7 @@ int main ( int varc, char **var )
 
 	smb_setup(&smb);
 
-	smb.debug = 1;
+//	smb.debug = 1;
 
 /*
 	if ( var[1] )
@@ -78,17 +78,18 @@ int main ( int varc, char **var )
 
 	for (i=0;i<machc;i++)
 	{
-		strcpy(filename,"/var/lib/sambaidx/");
+		/*strcpy(filename,"/var/lib/sambaidx/");
 		strcat(filename,mach[i].name);
 		idx = fopen(filename,"w+");
 		if (idx == NULL)
 			idx = stdout;
+		*/
 		get_files(&smb, &mach[i]);
-		if (idx != stdout)
-			fclose(idx);
+		/*if (idx != stdout)
+			fclose(idx);*/
 	}
 
-	printf("Finished: Directories: %d  Files: %d\n",dirc,filec);
+	//printf("Finished: Directories: %d  Files: %d\n",dirc,filec);
 	
 	exit(0);
 	return 0;
@@ -156,7 +157,6 @@ int get_files(smb_shiz *smb, smb_machine *mach)
 	int i;
 	int cd;
 	int sharec=0;
-	int dfilec=0;
 
 	cd = 0;
 	cdir[0]=0;
@@ -181,13 +181,10 @@ int get_files(smb_shiz *smb, smb_machine *mach)
 			if (smb->dir_change == 1)
 			{
 				strcpy(odir,cdir);
-				escape_badchars(cdir, 1024);
-				printf(" (%d files)\n",filec-dfilec);
-				printf("//%s/%s/%s...",mach->name,share[i].name,cdir);
-				fflush(stdout);
+				//escape_badchars(cdir, 1024);
+				printf("Entering %s -> %s...\n",mach->name,cdir);
 				smb->dir_change = 0;
 				dirc++;
-				dfilec=filec;
 				//filec--;
 			}
 			//else

@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "smblib.h"
+#include "errors.h"
 
 int smb_get_workgroups(smb_shiz *smb)
 {
@@ -16,7 +17,7 @@ int smb_get_workgroups(smb_shiz *smb)
 		return 1;
 	
 	if (strstr(line,"failed"))
-		return 1;
+		{smb_error(smb,SMB_BAD_HOST);return 1;}
 
 	if (!strstr(line,"Workgroup"))
 		goto readline_wg;
@@ -64,7 +65,7 @@ int smb_get_machines ( smb_shiz *smb )
 		return 1;
 
 	if (strstr(line,"failed"))
-		return 1;
+		{smb_error(smb,SMB_BAD_HOST);return 1;}
 
 	if (!(strstr(line,"Comment") && strstr(line,"Server")))
 		goto readline_mach;
@@ -109,6 +110,7 @@ int smb_get_shares ( smb_shiz *smb)
 	{
 		if (smb->debug)
 			printf("NULL pipe\n");
+		smb_error(smb,SMB_NULL_PIPE);
 		return 1;
 	}
 
@@ -123,14 +125,14 @@ int smb_get_shares ( smb_shiz *smb)
 		return 1;
 
 	if (strstr(line,"failed"))
-		return 1;
+		{smb_error(smb,SMB_BAD_HOST);return 1;}
 
 	if (!(strstr(line,"Comment") && strstr(line,"Sharename")))
 		goto readline_mach;
 
 	fgets(line,1023,smb->ppipe);
 	
-	return 0;                                                                                              return 0;
+	return 0;
 }
 
 int smb_get_files( smb_shiz *smb)
@@ -146,6 +148,7 @@ int smb_get_files( smb_shiz *smb)
 	{
 		if (smb->debug)
 			fprintf(stderr,"smb_get_files(): NULL pipe\n");
+		smb_error(smb,SMB_NULL_PIPE);
 		return 1;
 	}
 
@@ -160,10 +163,10 @@ int smb_get_files( smb_shiz *smb)
 		return 1;
 
 	if (strstr(line,"ERRDOS"))
-		return 1;
+		{smb_error(smb,SMB_NO_USER_ACCESS);return 1;}
 
 	if (strstr(line,"ERRSRV"))
-		return 1;
+		{smb_error(smb,SMB_SRV_NO_ACCESS);return 1;}
 
 	if (strstr(line,"more <filename>"))
 		return 0;
@@ -196,10 +199,10 @@ int smb_get_next_share (smb_shiz *smb, smb_share *share)
 		return 1;
 
 	if (strstr(line,"failed"))
-		return 1;
+		{smb_error(smb,SMB_BAD_HOST);return 1;}
 
 	if (strstr(line,"ERRnoaccess"))
-		return 1;
+		{smb_error(smb,SMB_NO_USER_ACCESS);return 1;}
 
         smb_striptabs(line);
         smb_split(line,share->name,0,15);
@@ -302,7 +305,7 @@ int smb_check_hostname(smb_shiz *smb, char *hostname)
 
 	sprintf(command,"smbclient -d 0 -N -L \"%s\"",hostname);
 
-	smb_setmaster(smb,"serverbox");
+	smb_setmaster(smb,MASTER);
 	
 	smb_openpipe(smb,command);	
 
@@ -429,8 +432,11 @@ int smb_name2ip(smb_shiz *smb,char *hostname, char *ip)
 //		printf("line: %s\n",line);
 		getword(line,word);
 //		printf("word: %s\n",word);
-		if (strchr(word,'.')<(&word+10))
+		if (strchr(word,'.')<(&word+10) )
+		{
+			if (*ip == 'q' )
 			strcpy(ip,word);
+		}
 	}
 	
 //	fflush(ppipe);

@@ -9,7 +9,8 @@ CC = icc
 #CFLAGS = -O6 -Wall -mpentiumpro -Wstrict-prototypes -fomit-frame-pointer -malign-functions=2 -fno-strength-reduce -malign-loops=2 -malign-jumps=2
 #CFLAGS = -g -O6 -Wall
 #CFLAGS = -Wall -pg -O6
-CFLAGS = -tpp6 -axiM -O2 -g
+#CFLAGS = -tpp6 -axiM -O3 -g -ipo -w2
+CFLAGS = -w2 -g
 
 DEFS = -DMASTER=\"$(MASTER)\"
 COMPILE_FLAGS = $(CXXFLAGS) $(DEFS)
@@ -29,7 +30,7 @@ BIN =	test \
 	sls \
 	scd \
 	text_index #\
-	super_index
+#	threaded_index
 	
 
 all: 	$(OBJS) $(BIN)
@@ -50,7 +51,7 @@ dirlist.o:	dirlist.c smblib.h errors.h
 	$(CC) dirlist.c -c $(CFLAGS)
 
 machlist.o:	machlist.c smblib.h errors.h
-	$(CC) machlist.c -c $(CFLAGS)
+	$(CC) machlist.c -c $(CFLAGS) -DMASTER=\"$(MASTER)\"
 
 smbcd.o:	smbcd.c smbcd.h smblib.h
 	$(CC) smbcd.c -c $(CFLAGS)
@@ -77,6 +78,9 @@ index: 		index.c $(SMBCDOBJS) $(OBJS)
 
 text_index:	text_index.c $(SMBCDOBJS) $(OBJS)
 	$(CC) text_index.c -o text_index  $(CFLAGS) $(SMBCDOBJS) $(OBJS)
+
+threaded_index:	threaded_index.c $(SMBCDOBJS) $(OBJS)
+	$(CC) threaded_index.c -o threaded_index  $(CFLAGS) $(SMBCDOBJS) $(OBJS)
 
 super_index:          super_index.c $(SMBCDOBJS) $(OBJS)
 	$(CC) super_index.c -o super_index $(CFLAGS) $(SMBCDOBJS) $(OBJS) -lpq -I/usr/include/pgsql/

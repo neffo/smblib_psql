@@ -16,7 +16,7 @@ int smb_openpipe(smb_shiz *smb, char *command)
 
 	if (!smb->ppipe)
 	{
-		smb_error(smb,4);
+		smb_error(smb,SMB_NULL_PIPE);
 		return 1;
 	}
 
@@ -33,7 +33,7 @@ int smb_closepipe (smb_shiz *smb)
 {
 	if (!smb->ppipe)
 	{
-		smb_error(smb,5);
+		smb_error(smb,SMB_NULL_PIPE);
 		return 1;
 	}
 

@@ -24,6 +24,7 @@ int main (int varc, char **var)
 //	printf("%s %s %s\n",cd.host,cd.share,cd.dir);
 
 	smb_setmaster(&smb,cd.master);
+	smb.debug = 1;
 
 	//if (!var[1])
 //	{
@@ -47,7 +48,7 @@ int main (int varc, char **var)
 	else if (hosttype == 2)
 		listwg(&smb,&cd,cd.host,var[1]);
 	else
-		fprintf(stderr,"blah\n");
+		fprintf(stderr,"ERROR: unable to connect to %s\n",cd.host);
 
 	exit(0);
 }
@@ -60,6 +61,11 @@ int listdir(smb_shiz *smb, smbcd_t *cd, char *mask)
 	
 //	smb_setup(smb);
 
+	smb_dent *flist;
+
+	int fc;
+	int i;
+
 	if (cd->master[0])
 		smb_setmaster(smb,cd->master);
 
@@ -69,13 +75,30 @@ int listdir(smb_shiz *smb, smbcd_t *cd, char *mask)
 		goto end_listdir;
 	}
 
+	fc = 0;
+	flist = 0;
+
 	while (smb_get_next_file(smb,&file)==0)
 	{
 		if (*file.filename)
 		{
-			smb_ffs(ffs,file.size);
-			printf("%c[01;%dm%5s%c[00m %s\n",27,file.mode?34:32,file.mode?"[DIR]":ffs,27,file.filename);
+			//smb_ffs(ffs,file.size);
+			//printf("%c[01;%dm%5s%c[00m %s\n",27,file.mode?34:32,file.mode?"[DIR]":ffs,27,file.filename);
+			if (flist == 0 )
+				flist = malloc(sizeof(smb_dent));
+			else
+				flist = realloc(flist,(fc+1)*sizeof(smb_dent));
+			
+			memcpy(&flist[fc],&file,1);
+			
+			fc++;
 		}
+	}
+
+	for (i = 0;i<fc;i++)
+	{
+		smb_ffs(ffs,flist[i].size);
+		printf("%c[01;%dm%5s%c[00m %s\n",27,flist[i].mode?34:32,flist[i].mode?"[DIR]":ffs,27,flist[i].filename);
 	}
 
 	end_listdir:

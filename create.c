@@ -11,7 +11,7 @@ int smb_setup(smb_shiz *smb)
 		memset(&smb,0,sizeof(smb_shiz));
 		return 0;
 	}
-	smb_error(smb,1);
+	smb_error(smb,0);
 	return 1;
 }
 
@@ -22,7 +22,7 @@ int smb_setmaster(smb_shiz *smb, char *master)
 		strncpy(smb->master,master,MAX_HOST_LEN);
 		return 0;
 	}
-	smb_error(smb,2);
+	smb_error(smb,SMB_BAD_HOST);
 	return 1;
 }
 
@@ -33,7 +33,7 @@ int smb_sethost(smb_shiz *smb, char *host)
 		strncpy(smb->host,host,MAX_HOST_LEN);
 		return 0;
 	}
-	smb_error(smb,2);
+	smb_error(smb,SMB_BAD_HOST);
 	return 1;
 }
 

@@ -1,0 +1,5 @@
+#define SMB_NULL_POINTER 1
+#define SMB_BAD_HOST 2
+#define SMB_PIPE_OPEN 3
+#define SMB_PIPE_ERROR 4
+

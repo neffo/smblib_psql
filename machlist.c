@@ -181,6 +181,9 @@ int smb_get_next_share (smb_shiz *smb, smb_share *share)
 
         share->name[0]=0;
 
+	if (smb->ppipe == NULL)
+		return 1;
+
         fgets(line,254,smb->ppipe);
 	
 	if (smb->debug)

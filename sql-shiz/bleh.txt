@@ -1,0 +1,15 @@
+snprintf(query,2047,"DELETE FROM file WHERE host_name = '%s'",mach[machi].name);
+fprintf(stderr,"DEBUG : query = %s\n",query);
+res = PQexec(pgc,query);
+switch (PQresultStatus(res))
+{
+case PGRES_TUPLES_OK:
+fprintf(stderr,"DEBUG : PGRES_TUPLES_OK\n");
+break;
+case PGRES_COMMAND_OK:
+fprintf(stderr,"DEBUG : PGRES_COMMAND_OK\n");
+break;
+default:
+fprintf(stderr,"DEBUG: some error occured\n");
+}
+PQclear(res);

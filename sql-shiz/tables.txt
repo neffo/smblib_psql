@@ -1,0 +1,31 @@
+NOTE: i probably should change the varchars to something else because the use buttloads of ram and harddrive space
+in fact the whole database design is probably wrong
+
+create table hosts (
+	host_name varchar(35) UNIQUE PRIMARY KEY,
+	check_time interval
+);
+
+shares (
+	host_name varchar(35),
+	share_name varchar(30),
+	CONSTRAINT host_share PRIMARY KEY(host_name,share_name)
+);
+
+file (
+	host_name varchar(35),
+	file_name varchar(1024),
+	share_name varchar(30),
+	dir_name varchar(1024),
+	size int8
+);
+
+INSERT INTO file (host_name,file_name,share_name,dir_name,size)
+VALUES
+('STUPID','menu.log','test','',0);
+
+UPDATE file SET size = 5231301
+where file_name = 'Prodigy - Minefields.mp3';
+
+
+

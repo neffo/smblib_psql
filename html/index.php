@@ -27,111 +27,173 @@ function ffs ($size) {
 	return($ffsize);
 }
 
-print_header();
+function dlbutton ($h,$s,$d,$f) {
 
-if ( $ext != "" )
-{
-$pgc = pg_connect("dbname=ineffable");
- $cmd = "SELECT * FROM file WHERE file_name LIKE '%.".$ext."'";
-if ( $query != "" )
-	$cmd = $cmd." AND file_name LIKE '%".$query."%'";
-$count = 20;
-$res = pg_exec ( $pgc, $cmd);
- $pgt = pg_numrows( $res );
- $start = $skip;
- $end = $start + $count;
- if ( $end > $pgt )
- 	$end = $pgt;
-if ($pgt > 0 )
-{
- if ( $pgt > $count )
-         printf("&nbsp; <b>Listing %d to %d out of %d<b><br>\n",($start+1),$end,$pgt);
-	print_next($pgt, $start, $count, $ext, $query);
-echo "<table width=\"100%\">\n";
-//echo "<tr><td><b>HOST</b></td><td><b>FILE</b></td><td align=right><b>SIZE</b></td></tr>\n";
-echo "<tr><td width=\"10%\"><b>HOST</b></td><td width=\"90%\"><b>FILE</b></td></tr>\n";
-	$grey="bgcolor=\"#D0D0D0\" ";
-	$bg="";
- for($i=$start;$i<$end;$i++)
- {
-        echo "<tr>\n";
-	 $rarr = pg_fetch_array ($res,$i);
-//	 echo $rarr["file_name"];
-	$sdir = "";
-	if ( $rarr["dir_name"] != "" )
-		$sdir = $rarr["dir_name"]."/";
-	if ($bg == "")
-		$bg=$grey;
-	else
-		$bg="";
-	 printf("<tr><td %s width=\"10%%\"><a href=\"file:////%s/%s%s\">%s</a></td>\n",$bg,$rarr["host_name"],$rarr["share_name"],$sdir,$rarr["host_name"]);
-	 printf("<td width=\"90%%\" %s ><a href=\"file:////%s/%s/%s%s\">%s</a> <font color=\"red\">%s</font></td></tr>\n",$bg,$rarr["host_name"],$rarr["share_name"],$sdir,$rarr["file_name"],$rarr["file_name"],ffs($rarr["size"]));
-         echo "</tr>\n";
- }
-echo "</table>\n";
-/*
-if ($pgt > $start + $count)
-{
-	echo "<form action=\"index.php\" method = \"POST\">";
-	echo "<input type=\"hidden\" name=\"ext\" value=\"".$ext."\">";
-	if ($query != "")
-		echo "<input type=\"hidden\" name=\"query\" value=\"".$query."\">";
-	echo "<input type=\"hidden\" name=\"skip\" value=\"".($start+$count)."\">";
-	echo "<input type=\"submit\" name=\"submit\" value=\"Next ".$count."\">";
-	echo "</form>";
-}*/
-	print_next($pgt, $start, $count, $ext, $query);
-}
-else
-{
-	echo "NO FILES FOUND.<br>\n";
-}
-pg_freeresult($res);
- pg_close($pgc);
-}
-print_footer();
-
-function print_next($pgt, $start, $count, $ext, $query)
-{
-
-	echo "<table width=\"100%\"><tr><td align=left width=\"50%\">\n";
-	$disabled="";
-
-	if (($start - $count) < 0 )
-		$disabled="disabled";
-
-	echo "<form action=\"index.php\" method = \"POST\">";
-	echo "<input type=\"hidden\" name=\"ext\" value=\"".$ext."\">";
-	if ($query != "")
-		echo "<input type=\"hidden\" name=\"query\" value=\"".$query."\">";
-	echo "<input type=\"hidden\" name=\"skip\" value=\"".($start-$count)."\">";
-	echo "<input type=\"submit\" ".$disabled." name=\"submit\" value=\"&lt; Prev ".$count."\">";
-	echo "</form>\n";
-
-	echo "</td><td align=right width=\"50%\">\n";
-
-	$disabled="disabled";
-
-	if ($pgt > $start + $count)
-		$disabled="";
-
-	echo "<form action=\"index.php\" method = \"POST\">";
-	echo "<input type=\"hidden\" name=\"ext\" value=\"".$ext."\">";
-	if ($query != "")
-		echo "<input type=\"hidden\" name=\"query\" value=\"".$query."\">";
-	echo "<input type=\"hidden\" name=\"skip\" value=\"".($start+$count)."\">";
-	echo "<input type=\"submit\" ".$disabled." name=\"submit\" value=\"Next ".$count." &gt;\">";
-	echo "</form>\n";
-	echo "</td></tr></table>\n";
+	?>
+	<form action="leach.php" method=POST>
+	<input type=hidden name=host value="<? echo $h; ?>">
+	<input type=hidden name=share value="<? echo $s; ?>">
+	<input type=hidden name=dir value="<? echo $d; ?>">
+	<input type=hidden name=file value="<? echo $f; ?>">
+	<input type=submit value="D">
+	</form>
+	<?
 }
 
+$q=$query;
 
-function print_header()
-{
-	include("form.inc");
+if(!isset($PHP_AUTH_USER)) {
+	Header("WWW-Authenticate: Basic realm=\"Uberoldman\"");
+	Header("HTTP/1.0 401 Unauthorized");
+	echo "Text to send if user hits Cancel button\n";
+	exit;
+} else {
+//	echo "Hello $PHP_AUTH_USER.<P>";
+//	echo "You entered $PHP_AUTH_PW as your password.<P>";
+
+	if ($PHP_AUTH_PW != "hello123")
+	{
+		Header("HTTP/1.0 401 Unauthorized");
+		echo "Invalid password\n";
+		exit;
+	}
 }
 
-function print_footer()
+include "form.inc";
+
+echo "<hr>\n";
+
+if ($e != "")
 {
-	echo "</td></tr><br>\n";
+	$e = ".".$e;
+}
+
+if (strlen($q)>2 || $e != "")
+{
+
+//	$indexfile=file("/var/lib/sambaindex.dat");
+	$maxresults=9999;
+	$line=0;
+	$rescount=0;
+	$bytes=0;
+
+	$sz = $sz * 1000 * 1000;
+
+//	echo "Q = $q $sign E = $e Sz = $sz Sc = $sc<br>\n";
+
+	
+
+	echo "<table>\n";
+
+	if ($sdir = @opendir("/var/lib/sambaidx")) 
+	
+	while ($file = readdir($sdir))
+	{
+		if ( $file != "." && $file != "..")
+		{
+			$indexfile=file("/var/lib/sambaidx/".$file);
+			$line = 0;
+
+			while ($rescount < $maxresults && $line < count($indexfile) && $indexfile[$line][0]=="|")
+			{
+				if ( $q != "" )
+				{
+					if (stristr($indexfile[$line],$q))
+						$qm = 1;
+					else
+						$qm = 0;
+
+					if (strcmp($sign,"false")==0)
+					if ($qm == 1)
+						$qm = 0;
+					else 
+						$qm = 1;
+				}
+				else // $q == ""
+					$qm = 1;
+		
+				if ( $e != "" ) 
+				{
+					if (!strncasecmp(strrchr($indexfile[$line],"."),$e,strlen($e)))
+						$em = 1;
+					else
+						$em = 0;
+				}
+				else // $e = ""
+					$em = 1;
+
+				if ( $qm && $em)
+				{
+					$filedata = explode("|", chop($indexfile[$line]));
+					$dir = $filedata[3];
+					if ( $e != "" && !strstr($filedata[4],$e))
+					{
+						$line++;
+						continue;
+					}
+
+					// don't list bad hosts
+					if ($hosts != "" && strstr($hosts,$filedata[1]))
+					{
+						$line++;
+						continue;
+					}
+
+					$sm = 1;
+
+					if ( $sz != "" )
+					{
+						if ($sc == "gt" && ( $filedata[5] < ($sz) ))
+						{
+							$sm = 0;
+						}
+						else if ($sc == "lt" && ( $filedata[5] > ($sz) ))
+						{
+							$sm = 0;
+						}
+						else if ($sc == "ap" && ($filedata[5] > 0) && ( (abs($filedata[5] - ($sz)))/$filedata[5]) > .25)
+						{
+							$sm = 0;
+						}
+					}
+
+					if ($sm == 0 )
+					{
+						//echo "No match.<br>";
+						$line++;
+						continue;
+					}
+					
+					if (strlen($dir)>0)
+						$dir=$dir."/";
+					$link = sprintf("///%s/%s/%s%s",$filedata[1],$filedata[2],$dir,$filedata[4]);
+					$link = str_replace("\\","/",$link);
+					if ($rescount%2)
+						$color="#ffffff";
+					else
+						$color="#eeeeee";
+					printf("<tr bgcolor=\"$color\"><td width=75><b>%s</b></td>",ffs($filedata[5]));
+					echo "<td>";
+					dlbutton($filedata[1],$filedata[2],$filedata[3],$filedata[4]);
+					echo "</td>";
+					echo "<td>\\\\ $filedata[1] \\ $filedata[2] \\ $dir <a href=\"file://$link\">";
+					printf(" %s</a></td></tr>\n",$filedata[4]);
+					$bytes = $bytes + $filedata[5];
+					$rescount++;
+				}
+				$line++;
+	
+			}
+			
+			//fclose($indexfile);
+		}
+	}
+
+	printf("</table><hr><b>%d matches %s</b><br>\n",$rescount,ffs($bytes));
+	
+}
+//else
+{
+//	printf("Q == NULL<BR>\n");
+//	include "form.inc";
 }

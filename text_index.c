@@ -36,7 +36,7 @@ int main ( int varc, char **var )
 
 	smb_setup(&smb);
 
-	smb.debug = 1;
+//	smb.debug = 1;
 
 /*
 	if ( var[1] )

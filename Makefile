@@ -21,7 +21,8 @@ OBJS = 	create.o \
 	string.o \
 	dirlist.o \
 	machlist.o \
-	file.o
+	file.o \
+	get.o
 	
 SMBCDOBJS = smbcd.o
 
@@ -29,7 +30,9 @@ BIN =	test \
 	test2 \
 	sls \
 	scd \
-	text_index #\
+	text_index \
+	test_download \
+	batchdl
 #	threaded_index
 	
 
@@ -81,6 +84,12 @@ text_index:	text_index.c $(SMBCDOBJS) $(OBJS)
 
 threaded_index:	threaded_index.c $(SMBCDOBJS) $(OBJS)
 	$(CC) threaded_index.c -o threaded_index  $(CFLAGS) $(SMBCDOBJS) $(OBJS)
+
+test_download: test_download.c $(SMBCDOBJS) $(OBJS)
+	$(CC) test_download.c -o test_dl $(CFLAGS) $(SMBCDOBJS) $(OBJS)
+
+batchdl:	batchdl.c $(SMBCDOBJS) $(OBJS)
+	$(CC) batchdl.c -o batchdl $(CFLAGS) $(SMBCDOBJS) $(OBJS)
 
 super_index:          super_index.c $(SMBCDOBJS) $(OBJS)
 	$(CC) super_index.c -o super_index $(CFLAGS) $(SMBCDOBJS) $(OBJS) -lpq -I/usr/include/pgsql/

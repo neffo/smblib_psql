@@ -7,6 +7,7 @@
 #define SMB_NO_USER_ACCESS 7 //ERRDOS - ERRnoaccess
 #define SMB_SRV_NO_ACCESS 8 //ERRSRV - ERRaccess
 #define SMB_BAD_PASSWORD 9 //ERRSRV - ERRbadpw
+#define SMB_POPEN_FAILURE 10 // unable to run smbclient command?
 
 typedef struct errcodes_s {
 	int errn;
@@ -14,7 +15,7 @@ typedef struct errcodes_s {
 	char *errl;
 }errcodes_t;
 
-static errcodes_t errors[11] = {
+static errcodes_t errors[12] = {
 /*	0,"Unknown error","Unknown",*/
 	SMB_NULL_PIPE, "Null pointer","The program tried to perform an operation on a NULL process pipe.",
 	SMB_PIPE_OPEN,"Already open pipe","The process pipe has already been initialised, a procedure expected it to be NULL.",
@@ -25,5 +26,6 @@ static errcodes_t errors[11] = {
 	SMB_NO_USER_ACCESS,"No user access","The server denied access because of an invalid user/password combo.",
 	SMB_SRV_NO_ACCESS,"Access denied","The server refused access.",
 	SMB_BAD_PASSWORD,"Bad password","The server refused access because of an invalid user/password combo.",
+	SMB_POPEN_FAILURE,"popen failed","The process pipe was not opened succesfully, possibly due to a problem locating or running \"smbclient\".",
 	NULL,NULL,NULL
 };

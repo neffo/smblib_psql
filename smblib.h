@@ -13,6 +13,8 @@
 #define MAX_USER_LEN 25
 #define MAX_PASSWD_LEN 30
 
+#define TOLEACHDIR "/mnt/uber/leached/.toleach"
+
 typedef struct smb_shiz
 {
 	FILE *ppipe;
@@ -115,6 +117,11 @@ int smb_get_wgmaster(smb_shiz *, char *, char *);
 int smb_check_hostname(smb_shiz *, char *);
 int smb_name2ip(smb_shiz *smb,char *hostname, char *ip);
 int smb_get_files( smb_shiz *smb);
+
+//get.c
+int smb_init_download ( smb_shiz *, char *, char *, char *, char * );
+int smb_start_download ( smb_shiz * );
+int smb_download_read ( smb_shiz *, char *, int); // returns bytes read
 
 void smb_ffs(char *,size_t);
 #endif

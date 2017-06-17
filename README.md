@@ -31,3 +31,6 @@ The website was just a simple search engine that would allow you to browse by
 filetype and keyword. There was some functionality to allow the downloading of
 files through the browser and possibly to the server (not sure if I completed
 that).
+
+The PHP code for the website is sadly (or not so sadly) lost. All that remains
+is the original flat text file version.
